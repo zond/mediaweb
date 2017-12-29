@@ -178,7 +178,7 @@ func handlerFunc(dir string) func(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Add("X-Mediaweb-Realpath", realPath)
 		if !filepath.HasPrefix(realPath, dir) {
-			http.Error(w, "outside allowed path", 400)
+			http.Error(w, fmt.Sprintf("%q is outside allowed path %q", realPath, dir), 400)
 			return
 		}
 		f, err := os.Open(realPath)
