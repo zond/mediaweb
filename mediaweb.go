@@ -34,9 +34,10 @@ body {
 <body>
 <ul>
 {{$parent := .parent}}
+{{$dlPrefix := .downloadPrefix}}
 {{range .files}}
 {{if .BuildLink}}
-<li><a href="{{join $parent .Name}}">{{join $parent .Name}}</a></li>
+<li><a href="{{join $parent .Name}}">{{.Name}}</a>{{if .AddDL}} <a href="{{join $dlPrefix $parent .Name}}">DL</a>{{end}}</li>
 {{else}}
 <li>{{join $parent .Name}}</li>
 {{end}}
@@ -71,6 +72,7 @@ body {
 
 type dirEntry struct {
 	BuildLink bool
+	AddDL bool
 	Name      string
 	Type      string
 }
@@ -87,6 +89,7 @@ func handleDir(w http.ResponseWriter, r *http.Request, dir *os.File) {
 		if info.IsDir() {
 			entries = append(entries, dirEntry{
 				BuildLink: true,
+				AddDL: false,
 				Name:      info.Name(),
 				Type:      "directory",
 			})
@@ -98,6 +101,7 @@ func handleDir(w http.ResponseWriter, r *http.Request, dir *os.File) {
 			}
 			entries = append(entries, dirEntry{
 				BuildLink: fileType.MIME.Type == "video",
+				AddDL: fileType.MIME.Type == "video",
 				Name:      info.Name(),
 				Type:      fileType.Extension,
 			})
@@ -107,6 +111,7 @@ func handleDir(w http.ResponseWriter, r *http.Request, dir *os.File) {
 		"title":  dir.Name(),
 		"files":  entries,
 		"parent": filepath.Join("/", r.URL.Path),
+		"downloadPrefix": downloadPrefix,
 	}); err != nil {
 		http.Error(w, err.Error(), 500)
 		return
