@@ -144,7 +144,7 @@ func handleDownload(w http.ResponseWriter, r *http.Request, dir string) {
 		return
 	}
 	if !filepath.HasPrefix(realPath, dir) {
-		http.Error(w, "outside allowed path", 400)
+		http.Error(w, fmt.Sprintf("%q is outside allowed path %q", realPath, dir), 400)
 		return
 	}
 	fileType, err := filetype.MatchFile(realPath)
